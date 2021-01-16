@@ -1,6 +1,8 @@
 import unittest
 # from matrix.exceptions import *
 
+###
+
 ##########################################################################
 ###################            Exceptions             ####################
 class MatrixException(Exception):
@@ -21,10 +23,6 @@ class Matrix:
     def __init__(self, m = []):
         self.matrix = m
         
-    def __str__(self):
-        for row in self.matrix:
-            print(row)
-            
     def valid(self):
         if self.matrix == []:
             return True
@@ -38,46 +36,117 @@ class Matrix:
         if not self.valid():
             raise InvalidException
         if self.matrix == []:
-            raise InvalidException
+            return [0, 0]
         return [len(self.matrix), len(self.matrix[0])]
+    
+    def __str__(self):
+        for row in self.matrix:
+            print(row)
+
+    def __str__(self):
+        ret = "["
+        for row in range(len(self.matrix) - 1):
+            ret += "["
+            for item in range(len(self.matrix[row]) - 1):
+                ret += str(self.matrix[row][item]) + ", "
+            ret += str(self.matrix[row][-1]) + "],\n"
+        ret += "["
+        for item in range(len(self.matrix[-1]) - 1):
+            ret += str(self.matrix[-1][item]) + ", "
+        ret += str(self.matrix[-1][-1]) + "]"
+        ret += "]\n"
+        return ret
+            
+    def __repr__(self):
+        ret = "["
+        for row in range(len(self.matrix) - 1):
+            ret += "["
+            for item in range(len(self.matrix[row]) - 1):
+                ret += str(self.matrix[row][item]) + ", "
+            ret += str(self.matrix[row][-1]) + "], "
+        ret += "["
+        for item in range(len(self.matrix[-1]) - 1):
+            ret += str(self.matrix[-1][item]) + ", "
+        ret += str(self.matrix[-1][-1]) + "]"
+        ret += "]"
+        return ret
     
     # m1 + m2
     def __add__(self, other):
-        if not self.matrix.valid() or not other.valid():
+        if not self.valid() or not other.valid():
             raise InvalidException
-        dim1 = self.matrix.dim()
+        dim1 = self.dim()
         dim2 = other.dim()
         if dim1 != dim2:
             raise DimensionException
         else:
-            for i in range(len(dim1[0])):
-                for j in range(len(dim1[1])):
-                    self.matrix[i][j] = self.matrix[i][j] + other[i][j]
+            for i in range(dim1[0]):
+                for j in range(dim1[1]):
+                    self.matrix[i][j] = self.matrix[i][j] + other.matrix[i][j]
+        return self.matrix
     
+    # m1 - m2
     def __sub__(self, other):
-        if not self.matrix.valid() or not other.valid():
+        if not self.valid() or not other.valid():
             raise InvalidException
-        dim1 = self.matrix.dim()
+        dim1 = self.dim()
         dim2 = other.dim()
         if dim1 != dim2:
             raise DimensionException
         else:
-            for i in range(len(dim1[0])):
-                for j in range(len(dim1[1])):
+            for i in range(dim1[0]):
+                for j in range(dim1[1]):
                     self.matrix[i][j] = self.matrix[i][j] - other[i][j]
+        return self.matrix
     
+    # can use scalars, or use as dot product
+    # m1 * m2
+    # m1 * n
     def __mul__(self, other):
-        dim1 = self.matrix.dim()
-        if isinstance(other, int):
-            for i in range(len(dim1[0])):
-                for j in range(len(dim1[1])):
+        dim1 = self.dim()
+        if isinstance(other, int) or isinstance(other, float):
+            for i in range(dim1[0]):
+                for j in range(dim1[1]):
                     self.matrix[i][j] = other * self.matrix[i][j]
         else:
             dim2 = other.dim()
-            if dim1[0] != dim2[1] or dim1[1] != dim2[0]:
+            if dim1[1] != dim2[0]:
                 raise DimensionException
-
+            product = []
+            for row in range(len(self.matrix)):
+                p_row = []
+                for col in range(len(other.matrix[row])):
+                    other_col = [other_row[col] for other_row in other.matrix]
+                    s = sum([x * y for x,y in zip(self.matrix[row], other_col)])
+                    p_row.append(s)
+                product.append(p_row)
+            self.matrix = product
+        return self.matrix
+    
+    # Row operations
+    def swap_rows(self, n, m):
+        temp = self.matrix[n]
+        self.matrix[n] = self.matrix[m]
+        self.matrix[m] = temp
+        return self.matrix
+    
+    def add_rows(self, n, m):
+        self.matrix[n] = [x + y for x, y in zip(n, m)]
+        return self.matrix
+    
+    def sub_rows(self, n, m):
+        self.matrix[n] = [x - y for x, y in zip(n, m)]
+        return self.matrix
+    
+    def mul_rows(self, n, m):
+        self.matrix[n] = [m * x for x in n]
+        return self.matrix
+    
+    # Advanced matrix operations
     def transpose(self):
+        self.matrix
+    
+    def ref(self):
         pass
     
     def rref(self):
@@ -104,7 +173,69 @@ class Test(unittest.TestCase):
         m = Matrix([[1, 2, 3],
                     [3, 4, 5],
                     [9, 0]])
-        self.assertEqual(m.dim(), "not a valid matrix")
+        with self.assertRaises(InvalidException):
+            m.dim()
+    # swap(n, m)
+    def test_swap(self):
+        m1 = Matrix([[1, 2, 3],
+                     [3, 4, 5],
+                     [9, 0, 9]])
+        m2 = Matrix([[3, 4, 5],
+                     [1, 2, 3],
+                     [9, 0, 9]])
+        self.assertEqual(repr(m1.swap_rows(0, 1)), repr(m2))
+    # add(m2)
+    def test_add(self):
+        m1 = Matrix([[1, 2, 3],
+                     [4, 5, 6]])
+        m2 = Matrix([[0, 0, 0],
+                     [0, 0, 0]])
+        self.assertEqual(repr(m1 + m2), repr(Matrix([[1, 2, 3],
+                                                     [4, 5, 6]])))
+    def test_add_2(self):
+        m1 = Matrix([[1, 2, 3],
+                     [3, 4, 5],
+                     [9, 0, 9]])
+        m2 = Matrix([[1, 2, 3],
+                     [4, 5, 6]])
+        with self.assertRaises(DimensionException):
+            m1 + m2
+    def test_add(self):
+        m1 = Matrix([[1, 2, 3],
+                     [4, 5, 6],
+                     [1, 1, 2]])
+        m2 = Matrix([[1, 0, 0],
+                     [0, 1, 0],
+                     [0, 0, 1]])
+        self.assertEqual(repr(m1 + m2), repr(Matrix([[2, 2, 3],
+                                                     [4, 6, 6],
+                                                     [1, 1, 3]])))
+    # sub(m2)
+    # mul(n)
+    def test_mul_constant(self):
+        m1 = Matrix([[1, 2, 3],
+                     [3, 4, 5],
+                     [9, 0, 9]])
+        self.assertEqual(repr(m1 * 5), repr(Matrix([[5, 10, 15],
+                                                    [15, 20, 25],
+                                                    [45, 0, 45]])))
+    def test_mul_constant2(self):
+        m1 = Matrix([[1, 2, 3],
+                     [4, 5, 6]])
+        self.assertEqual(repr(m1 * 0.5), repr(Matrix([[0.5, 1.0, 1.5],
+                                                      [2.0, 2.5, 3.0]])))
+    # mul(m2)
+    def test_mul(self):
+        m1 = Matrix([[1, 2, 3],
+                     [3, 4, 5],
+                     [9, 0, 9]])
+        m2 = Matrix([[1, 4, 5, 9, 0],
+                     [1, 1, 1, 0, 2],
+                     [0, 0, 1, 2, 3]])
+        pm = Matrix([[3, 6, 10, 15, 13],
+                     [7, 16, 24, 37, 23],
+                     [9, 36, 54, 99, 27]])
+        self.assertEqual(repr(m1 * m2), repr(pm))
 
 if __name__=="__main__":
     unittest.main()

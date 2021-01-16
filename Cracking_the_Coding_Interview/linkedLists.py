@@ -9,4 +9,3 @@ class Node:
             n = self.next
         n.next = Node(val)
 
-Node(3).append(0)
