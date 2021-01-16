@@ -158,7 +158,9 @@ class Matrix:
             raise DimensionException
 
 ##########################################################################
-###################              Tests                ####################        
+###################              Tests                ####################
+
+# https://hackernoon.com/timing-tests-in-python-for-fun-and-profit-1663144571   
 
 class Test(unittest.TestCase):
     # dim()
