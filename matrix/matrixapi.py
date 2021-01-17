@@ -21,6 +21,8 @@ class InvalidException(MatrixException):
 
 class Matrix:
     def __init__(self, m = []):
+        """Docstring"""
+        
         self.matrix = m
         
     def valid(self):
@@ -113,9 +115,9 @@ class Matrix:
             if dim1[1] != dim2[0]:
                 raise DimensionException
             product = []
-            for row in range(len(self.matrix)):
+            for row in range(dim1[0]):
                 p_row = []
-                for col in range(len(other.matrix[row])):
+                for col in range(dim2[1]):
                     other_col = [other_row[col] for other_row in other.matrix]
                     s = sum([x * y for x,y in zip(self.matrix[row], other_col)])
                     p_row.append(s)
@@ -144,7 +146,22 @@ class Matrix:
     
     # Advanced matrix operations
     def transpose(self):
-        self.matrix
+        """Method to transpose a matrix
+        
+        This method rebuilds a matrix into its transposed form
+        """
+        
+        dim1 = self.dim()
+        product = []
+        # for row in range(len(self.matrix)):
+        #     p_row = []
+        #     for col in range(len(other.matrix[row])):
+        #         other_col = [other_row[col] for other_row in other.matrix]
+        #         s = sum([x * y for x,y in zip(self.matrix[row], other_col)])
+        #         p_row.append(s)
+        #     product.append(p_row)
+        # self.matrix = product
+        return self.matrix
     
     def ref(self):
         pass
@@ -192,8 +209,9 @@ class Test(unittest.TestCase):
                      [4, 5, 6]])
         m2 = Matrix([[0, 0, 0],
                      [0, 0, 0]])
-        self.assertEqual(repr(m1 + m2), repr(Matrix([[1, 2, 3],
-                                                     [4, 5, 6]])))
+        result = Matrix([[1, 2, 3],
+                         [4, 5, 6]])
+        self.assertEqual(repr(m1 + m2), repr(result))
     def test_add_2(self):
         m1 = Matrix([[1, 2, 3],
                      [3, 4, 5],
@@ -209,10 +227,18 @@ class Test(unittest.TestCase):
         m2 = Matrix([[1, 0, 0],
                      [0, 1, 0],
                      [0, 0, 1]])
-        self.assertEqual(repr(m1 + m2), repr(Matrix([[2, 2, 3],
-                                                     [4, 6, 6],
-                                                     [1, 1, 3]])))
+        result = Matrix([[2, 2, 3],
+                         [4, 6, 6],
+                         [1, 1, 3]])
+        self.assertEqual(repr(m1 + m2), repr(result))
     # sub(m2)
+    def test_sub(self):
+        m1 = Matrix([[1, 2, 3],
+                     [4, 5, 6],
+                     [1, 1, 2]])
+        m2 = Matrix([[1, 0, 0],
+                     [0, 1, 0],
+                     [0, 0, 1]])
     # mul(n)
     def test_mul_constant(self):
         m1 = Matrix([[1, 2, 3],
@@ -234,10 +260,19 @@ class Test(unittest.TestCase):
         m2 = Matrix([[1, 4, 5, 9, 0],
                      [1, 1, 1, 0, 2],
                      [0, 0, 1, 2, 3]])
-        pm = Matrix([[3, 6, 10, 15, 13],
+        result = Matrix([[3, 6, 10, 15, 13],
                      [7, 16, 24, 37, 23],
                      [9, 36, 54, 99, 27]])
-        self.assertEqual(repr(m1 * m2), repr(pm))
+        self.assertEqual(repr(m1 * m2), repr(result))
+    def test_mul2(self):
+        m1 = Matrix([[1, 2],
+                     [1, 2],
+                     [0, 5]])
+        m2 = Matrix([[4, 1, 0, 0, 1],
+                     [2, 1, 0, 1, 1]])
+        result = Matrix([[8, 3, 0, 2, 3],
+                         [8, 3, 0, 2, 3],
+                         [10, 5, 0, 5, 5]])
 
 if __name__=="__main__":
     unittest.main()
