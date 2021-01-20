@@ -151,16 +151,13 @@ class Matrix:
         This method rebuilds a matrix into its transposed form
         """
         
-        dim1 = self.dim()
-        product = []
-        # for row in range(len(self.matrix)):
-        #     p_row = []
-        #     for col in range(len(other.matrix[row])):
-        #         other_col = [other_row[col] for other_row in other.matrix]
-        #         s = sum([x * y for x,y in zip(self.matrix[row], other_col)])
-        #         p_row.append(s)
-        #     product.append(p_row)
-        # self.matrix = product
+        dim = self.dim()
+        result = []
+        for row in range(len(self.matrix)):
+            for col in range(len(dim[0])):
+                other_col = [other_row[col] for other_row in self.matrix]
+                result.append(other_col)
+        self.matrix = result
         return self.matrix
     
     def ref(self):
