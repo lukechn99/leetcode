@@ -19,12 +19,57 @@ class InvalidException(MatrixException):
         super().__init__(self.message)
 ##########################################################################
 
+##########################################################################
+###################            Fractions              ####################
+class Fraction:
+    def __init__(self, num, den):
+        self.num = num
+        self.den = den
+
+##########################################################################
+
+
 class Matrix:
     def __init__(self, m = []):
         """Docstring"""
         
         self.matrix = m
+        self.regular = self.regular()
+        self.nonsingular = self.nonsingular()
+        # refs are only recalculated if needed when the matrix changes
+        self.ref = m
+        self.ref_updated = False
         
+    def regular(self):
+        """Regular matrix
+        
+        A regular matrix is one that has only non-zero pivots when
+        Gaussian eliminated with add and subtract elementary row
+        operations in a descending fashion
+        """
+        for row in self.matrix:
+            # take the first row first item and use Fractions to eliminate
+            # the first item of every succeeding row, then second row
+            # second item and so on. If we reach a 0 when the corresponding
+            # value in succeeding rows are not zero then this matrix is not
+            # regular, if the matrix is reduced to ref with non-zero pivots
+            # then the matrix is regular
+            
+            # perhaps we could store the ref version of a matrix in the 
+            # Matrix class. 
+            continue
+        
+        return False
+    
+    def nonsingular(self):
+        """Nonsingular matrix
+        
+        A nonsingular matrix is one that has only non-zero pivots when
+        Gaussian eliminated with add, subtract, and pivot row operations
+        """
+        
+        return False
+    
     def valid(self):
         if self.matrix == []:
             return True
@@ -40,10 +85,6 @@ class Matrix:
         if self.matrix == []:
             return [0, 0]
         return [len(self.matrix), len(self.matrix[0])]
-    
-    def __str__(self):
-        for row in self.matrix:
-            print(row)
 
     def __str__(self):
         ret = "["
