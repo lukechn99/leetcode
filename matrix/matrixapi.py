@@ -5,44 +5,58 @@ import unittest
 
 ##########################################################################
 ###################            Exceptions             ####################
+
+
 class MatrixException(Exception):
     pass
 
+
 class DimensionException(MatrixException):
-    def __init__(self, message = "wrong dimensions for operation"):
+    def __init__(self, message="wrong dimensions for operation"):
         self.message = message
         super().__init__(self.message)
-        
+
+
 class InvalidException(MatrixException):
-    def __init__(self, message = "not a valid matrix"):
+    def __init__(self, message="not a valid matrix"):
         self.message = message
         super().__init__(self.message)
 ##########################################################################
 
 ##########################################################################
 ###################            Fractions              ####################
+
+
 class Fraction:
     def __init__(self, num, den):
         self.num = num
         self.den = den
 
+    def __mul__(self, other):
+        if isinstance(other, int) or isinstance(other, float):
+            self.num = self.num * other
+        else:
+            self.num = self.num * other.num
+            self.den = self.den * other.den
+        return self
+
 ##########################################################################
 
 
 class Matrix:
-    def __init__(self, m = []):
+    def __init__(self, m=[]):
         """Docstring"""
-        
+
         self.matrix = m
         self.regular = self.regular()
         self.nonsingular = self.nonsingular()
         # refs are only recalculated if needed when the matrix changes
         self.ref = m
         self.ref_updated = False
-        
+
     def regular(self):
         """Regular matrix
-        
+
         A regular matrix is one that has only non-zero pivots when
         Gaussian eliminated with add and subtract elementary row
         operations in a descending fashion
@@ -54,22 +68,22 @@ class Matrix:
             # value in succeeding rows are not zero then this matrix is not
             # regular, if the matrix is reduced to ref with non-zero pivots
             # then the matrix is regular
-            
-            # perhaps we could store the ref version of a matrix in the 
-            # Matrix class. 
+
+            # perhaps we could store the ref version of a matrix in the
+            # Matrix class.
             continue
-        
+
         return False
-    
+
     def nonsingular(self):
         """Nonsingular matrix
-        
+
         A nonsingular matrix is one that has only non-zero pivots when
         Gaussian eliminated with add, subtract, and pivot row operations
         """
-        
+
         return False
-    
+
     def valid(self):
         if self.matrix == []:
             return True
@@ -78,7 +92,7 @@ class Matrix:
             if len(row) != rowlen:
                 return False
         return True
-    
+
     def dim(self):
         if not self.valid():
             raise InvalidException
@@ -99,7 +113,7 @@ class Matrix:
         ret += str(self.matrix[-1][-1]) + "]"
         ret += "]\n"
         return ret
-            
+
     def __repr__(self):
         ret = "["
         for row in range(len(self.matrix) - 1):
@@ -113,7 +127,7 @@ class Matrix:
         ret += str(self.matrix[-1][-1]) + "]"
         ret += "]"
         return ret
-    
+
     # m1 + m2
     def __add__(self, other):
         if not self.valid() or not other.valid():
@@ -127,7 +141,7 @@ class Matrix:
                 for j in range(dim1[1]):
                     self.matrix[i][j] = self.matrix[i][j] + other.matrix[i][j]
         return self.matrix
-    
+
     # m1 - m2
     def __sub__(self, other):
         if not self.valid() or not other.valid():
@@ -141,7 +155,7 @@ class Matrix:
                 for j in range(dim1[1]):
                     self.matrix[i][j] = self.matrix[i][j] - other[i][j]
         return self.matrix
-    
+
     # can use scalars, or use as dot product
     # m1 * m2
     # m1 * n
@@ -160,38 +174,38 @@ class Matrix:
                 p_row = []
                 for col in range(dim2[1]):
                     other_col = [other_row[col] for other_row in other.matrix]
-                    s = sum([x * y for x,y in zip(self.matrix[row], other_col)])
+                    s = sum([x * y for x, y in zip(self.matrix[row], other_col)])
                     p_row.append(s)
                 product.append(p_row)
             self.matrix = product
         return self.matrix
-    
+
     # Row operations
     def swap_rows(self, n, m):
         temp = self.matrix[n]
         self.matrix[n] = self.matrix[m]
         self.matrix[m] = temp
         return self.matrix
-    
+
     def add_rows(self, n, m):
         self.matrix[n] = [x + y for x, y in zip(n, m)]
         return self.matrix
-    
+
     def sub_rows(self, n, m):
         self.matrix[n] = [x - y for x, y in zip(n, m)]
         return self.matrix
-    
+
     def mul_rows(self, n, m):
         self.matrix[n] = [m * x for x in n]
         return self.matrix
-    
+
     # Advanced matrix operations
     def transpose(self):
         """Method to transpose a matrix
-        
+
         This method rebuilds a matrix into its transposed form
         """
-        
+
         dim = self.dim()
         result = []
         for row in range(len(self.matrix)):
@@ -200,13 +214,34 @@ class Matrix:
                 result.append(other_col)
         self.matrix = result
         return self.matrix
-    
+
+    # Gaussian elimination
+    # sets the ref and ref_updated fields of Matrix
+    # not tested yet
     def ref(self):
-        pass
-    
+        if self.regular:
+            # use the pivots to eliminate their column
+            ref_matrix = self.matrix
+            for i in range(len(self.matrix)):
+                # use the ith row to create a fraction list to multiply
+                scale = []
+                for j in range(len(self.matrix)):
+                    scale.append(
+                        Fraction(self.matrix[i][j], self.matrix[i][i]))
+                sub_matrix = []
+                for s in range(len(scale)):
+                    if s == 0:
+                        sub_matrix.append([0 * x for x in self.matrix[s]])
+                    else:
+                        sub_matrix.append([s * x for x in self.matrix[s]])
+                ref_matrix = ref_matrix - sub_matrix
+            self.ref_updated = True
+            self.ref = ref_matrix
+
+    # Gauss Jordan elimination
     def rref(self):
         pass
-    
+
     # **
     def __pow__(self, exponent):
         if self.matrix.dim()[0] != self.matrix.dim()[1]:
@@ -215,17 +250,20 @@ class Matrix:
 ##########################################################################
 ###################              Tests                ####################
 
-# https://hackernoon.com/timing-tests-in-python-for-fun-and-profit-1663144571   
+# https://hackernoon.com/timing-tests-in-python-for-fun-and-profit-1663144571
+
 
 class Test(unittest.TestCase):
     # dim()
     def test1(self):
         m = Matrix([[1, 0],
-                [0, 1]])
+                    [0, 1]])
         self.assertEqual(m.dim(), [2, 2])
+
     def test2(self):
         m = Matrix()
         self.assertEqual(m.dim(), [0, 0])
+
     def test3(self):
         m = Matrix([[1, 2, 3],
                     [3, 4, 5],
@@ -233,6 +271,7 @@ class Test(unittest.TestCase):
         with self.assertRaises(InvalidException):
             m.dim()
     # swap(n, m)
+
     def test_swap(self):
         m1 = Matrix([[1, 2, 3],
                      [3, 4, 5],
@@ -242,6 +281,7 @@ class Test(unittest.TestCase):
                      [9, 0, 9]])
         self.assertEqual(repr(m1.swap_rows(0, 1)), repr(m2))
     # add(m2)
+
     def test_add(self):
         m1 = Matrix([[1, 2, 3],
                      [4, 5, 6]])
@@ -250,6 +290,7 @@ class Test(unittest.TestCase):
         result = Matrix([[1, 2, 3],
                          [4, 5, 6]])
         self.assertEqual(repr(m1 + m2), repr(result))
+
     def test_add_2(self):
         m1 = Matrix([[1, 2, 3],
                      [3, 4, 5],
@@ -258,6 +299,7 @@ class Test(unittest.TestCase):
                      [4, 5, 6]])
         with self.assertRaises(DimensionException):
             m1 + m2
+
     def test_add(self):
         m1 = Matrix([[1, 2, 3],
                      [4, 5, 6],
@@ -270,6 +312,7 @@ class Test(unittest.TestCase):
                          [1, 1, 3]])
         self.assertEqual(repr(m1 + m2), repr(result))
     # sub(m2)
+
     def test_sub(self):
         m1 = Matrix([[1, 2, 3],
                      [4, 5, 6],
@@ -278,6 +321,7 @@ class Test(unittest.TestCase):
                      [0, 1, 0],
                      [0, 0, 1]])
     # mul(n)
+
     def test_mul_constant(self):
         m1 = Matrix([[1, 2, 3],
                      [3, 4, 5],
@@ -285,12 +329,14 @@ class Test(unittest.TestCase):
         self.assertEqual(repr(m1 * 5), repr(Matrix([[5, 10, 15],
                                                     [15, 20, 25],
                                                     [45, 0, 45]])))
+
     def test_mul_constant2(self):
         m1 = Matrix([[1, 2, 3],
                      [4, 5, 6]])
         self.assertEqual(repr(m1 * 0.5), repr(Matrix([[0.5, 1.0, 1.5],
                                                       [2.0, 2.5, 3.0]])))
     # mul(m2)
+
     def test_mul(self):
         m1 = Matrix([[1, 2, 3],
                      [3, 4, 5],
@@ -299,9 +345,10 @@ class Test(unittest.TestCase):
                      [1, 1, 1, 0, 2],
                      [0, 0, 1, 2, 3]])
         result = Matrix([[3, 6, 10, 15, 13],
-                     [7, 16, 24, 37, 23],
-                     [9, 36, 54, 99, 27]])
+                         [7, 16, 24, 37, 23],
+                         [9, 36, 54, 99, 27]])
         self.assertEqual(repr(m1 * m2), repr(result))
+
     def test_mul2(self):
         m1 = Matrix([[1, 2],
                      [1, 2],
@@ -312,7 +359,8 @@ class Test(unittest.TestCase):
                          [8, 3, 0, 2, 3],
                          [10, 5, 0, 5, 5]])
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     unittest.main()
-    
+
 ##########################################################################
