@@ -53,6 +53,8 @@ class Matrix:
         # refs are only recalculated if needed when the matrix changes
         self.ref = m
         self.ref_updated = False
+        self.rref = m
+        self.rref_updated = False
 
     def regular(self):
         """Regular matrix
@@ -61,19 +63,13 @@ class Matrix:
         Gaussian eliminated with add and subtract elementary row
         operations in a descending fashion
         """
-        for row in self.matrix:
-            # take the first row first item and use Fractions to eliminate
-            # the first item of every succeeding row, then second row
-            # second item and so on. If we reach a 0 when the corresponding
-            # value in succeeding rows are not zero then this matrix is not
-            # regular, if the matrix is reduced to ref with non-zero pivots
-            # then the matrix is regular
-
-            # perhaps we could store the ref version of a matrix in the
-            # Matrix class.
-            continue
-
-        return False
+        # if already recorded and ref is found, just look in
+        if not self.ref_updated:
+            self.rowEchelon()
+        for i in range(len(self.ref)):
+            if self.ref[i][i] == 0:
+                return False
+        return True
 
     def nonsingular(self):
         """Nonsingular matrix
@@ -218,28 +214,39 @@ class Matrix:
     # Gaussian elimination
     # sets the ref and ref_updated fields of Matrix
     # not tested yet
-    def ref(self):
-        if self.regular:
-            # use the pivots to eliminate their column
-            ref_matrix = self.matrix
-            for i in range(len(self.matrix)):
-                # use the ith row to create a fraction list to multiply
-                scale = []
-                for j in range(len(self.matrix)):
-                    scale.append(
-                        Fraction(self.matrix[i][j], self.matrix[i][i]))
-                sub_matrix = []
-                for s in range(len(scale)):
-                    if s == 0:
-                        sub_matrix.append([0 * x for x in self.matrix[s]])
-                    else:
-                        sub_matrix.append([s * x for x in self.matrix[s]])
-                ref_matrix = ref_matrix - sub_matrix
-            self.ref_updated = True
-            self.ref = ref_matrix
+    def rowEchelon(self):
+        for row in self.matrix:
+            # take the first row first item and use Fractions to eliminate
+            # the first item of every succeeding row, then second row
+            # second item and so on. If we reach a 0 when the corresponding
+            # value in succeeding rows are not zero then this matrix is not
+            # regular, if the matrix is reduced to ref with non-zero pivots
+            # then the matrix is regular
+
+            # perhaps we could store the ref version of a matrix in the
+            # Matrix class.
+            continue
+        # if self.regular:
+        #     # use the pivots to eliminate their column
+        #     ref_matrix = self.matrix
+        #     for i in range(len(self.matrix)):
+        #         # use the ith row to create a fraction list to multiply
+        #         scale = []
+        #         for j in range(len(self.matrix)):
+        #             scale.append(
+        #                 Fraction(self.matrix[i][j], self.matrix[i][i]))
+        #         sub_matrix = []
+        #         for s in range(len(scale)):
+        #             if s == 0:
+        #                 sub_matrix.append([0 * x for x in self.matrix[s]])
+        #             else:
+        #                 sub_matrix.append([s * x for x in self.matrix[s]])
+        #         ref_matrix = ref_matrix - sub_matrix
+        #     self.ref_updated = True
+        #     self.ref = ref_matrix
 
     # Gauss Jordan elimination
-    def rref(self):
+    def reducedRowEchelon(self):
         pass
 
     # **
