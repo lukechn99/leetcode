@@ -1,0 +1,67 @@
+Approximate String Matching
+
+You should probably not delete or replace if there's nothing to delete or replace, and not insert if it makes length greater than target
+
+-----step 0-----
+au -> add
+
+-----step 1-----
+a|u -> a|dd
+
+-----step 2-----
+replace: ad| -> ad|d
+delete: a| -> a|dd
+insert: ad|u -> ad|d
+
+-----step 3-----
+replace,replace: can't
+replace,insert: add| -> add| 2 moves
+replace,delete: can't
+
+delete, replace: can't
+delete,insert: ad| -> ad|d
+delete,delete: can't
+
+insert,replace: add| -> add| 2 moves
+insert,insert: can't
+insert,delete: ad| -> ad|d 
+
+-----step 4-----
+delete,insert,replace: can't
+delete,insert,insert: add| -> add| 3 moves
+delete,insert,delete: can't
+
+insert,delete,replace: can't
+insert,delete,insert: add| -> add| 3 moves
+insert,delete,delete: can't
+
+-----result-----
+[2, 2, 3, 3]
+best is 2
+
+-----pseudocode-----
+def replace(string, new_char, index):
+	return string[:index] + new_char + string[index + 1:]
+
+def insert(string, new_char, index):
+	return string[:index] new_char + string[index:]
+
+def delete(string, index):
+	return string[:index] + string[index + 1:]
+
+def conform(string, target, i1, i2):
+	if string == target:
+		return 0
+	if string:
+		while string[i1] == target[i2]:
+			i1 += 1
+			i2 += 1
+		replace = i1 >= len(string) ? None : replace(string, target[i2], i1)		# ad
+		insert = len(string) == len(target) ? None : insert(string, target[i2], i1)	# adu
+		delete = i1 >= len(string) ? None : delete(string, i1)				# a
+		return 1 + min(conform(replace, target, i1, i2), 
+		       	       conform(insert, target, i1, i2),
+		               conform(delete, target, i1, i2))
+	return 0
+
+conform("au", "add", 0, 0)
