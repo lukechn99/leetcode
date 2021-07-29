@@ -1,4 +1,4 @@
-Approximate String Matching
+Approximate String Matching / Fuzzy Match
 
 You should probably not delete or replace if there's nothing to delete or replace, and not insert if it makes length greater than target
 
