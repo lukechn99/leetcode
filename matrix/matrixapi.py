@@ -32,6 +32,12 @@ class Fraction:
         self.num = num
         self.den = den
 
+    def __add__(self, other):
+        if isinstance(other, int) or isinstance(other, float):
+            self.num = self.num + other.num * self.den
+        else:
+            pass
+
     def __mul__(self, other):
         if isinstance(other, int) or isinstance(other, float):
             self.num = self.num * other
@@ -55,6 +61,8 @@ class Matrix:
         self.ref_updated = False
         self.rref = m
         self.rref_updated = False
+        self.rank = 0
+        self.rank_updated =
 
     def regular(self):
         """Regular matrix
@@ -214,6 +222,23 @@ class Matrix:
     # Gaussian elimination
     # sets the ref and ref_updated fields of Matrix
     # not tested yet
+    # start
+    #     for i = 1 to n
+    #         set r(i) = i
+    #     next i
+    #     for j = 1 to n
+    #         if mr(i),j = 0 for all i ≥ j, stop; print “A is singular”
+    #         choose i>j such that mr(i),j is maximal
+    #         interchange r(i) ←→ r(j)
+    #         for i = j + 1 to n
+    #             set lr(i)j = mr(i)j/mr(j)j
+    #             for k = j + 1 to n + 1
+    #                 set mr(i)k = mr(i)k − lr(i)jmr(j)k
+    #             next k
+    #         next i
+    #     next j
+    # end
+
     def rowEchelon(self):
         for row in self.matrix:
             # take the first row first item and use Fractions to eliminate
