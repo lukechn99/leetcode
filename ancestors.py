@@ -1,6 +1,8 @@
 # PALANTIR
 
-# Suppose we have some input data describing a graph of relationships between parents and children over multiple generations. The data is formatted as a list of (parent, child) pairs, where each individual is assigned a unique positive integer identifier.
+# Suppose we have some input data describing a graph of relationships between parents 
+# and children over multiple generations. The data is formatted as a list of (parent, child) pairs, 
+# where each individual is assigned a unique positive integer identifier.
 
 # For example, in this diagram, 6 and 8 have common ancestors of 4 and 14.
 
@@ -20,7 +22,8 @@
 #     (12, 9), (15, 13)
 # ]
 
-# Write a function that takes this data and the identifiers of two individuals as inputs and returns true if and only if they share at least one ancestor. 
+# Write a function that takes this data and the identifiers of two individuals as inputs and returns true 
+# if and only if they share at least one ancestor. 
 
 # Sample input and output:
 
